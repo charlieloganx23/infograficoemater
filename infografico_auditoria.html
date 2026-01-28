@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxo da Auditoria Operacional: EMATER-RO</title>
+    <meta name="description" content="Infográfico interativo demonstrando o processo técnico e lógico da auditoria operacional da EMATER-RO, desde a coleta de dados até as recomendações estratégicas para agricultura familiar.">
+    <meta name="keywords" content="EMATER-RO, auditoria operacional, agricultura familiar, TCE-RO, assistência técnica, extensão rural, Rondônia">
+    <meta name="author" content="TCE-RO - Tribunal de Contas do Estado de Rondônia">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Fluxo da Auditoria Operacional: EMATER-RO">
+    <meta property="og:description" content="Processo técnico da auditoria que transforma coleta de dados em recomendações estratégicas para agricultura familiar.">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Fluxo da Auditoria Operacional: EMATER-RO">
+    <meta property="twitter:description" content="Processo técnico da auditoria que transforma coleta de dados em recomendações estratégicas para agricultura familiar.">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            transition: background 0.3s ease;
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid #2d8659;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            color: #1e3a5f;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 18px;
+            color: #4a5f7f;
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .flow-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 80px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        /* Connecting lines between stages */
+        .flow-container::before {
+            content: '';
+            position: absolute;
+            top: 120px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #2d8659 0%, #4ca86d 50%, #2d8659 100%);
+            z-index: 1;
+            animation: lineGrow 1.2s ease-out 0.3s forwards;
+            transform-origin: left;
+        }
+
+        @keyframes lineGrow {
+            from {
+                transform: scaleX(0);
+            }
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        .stage {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stage-card {
+            background: white;
+            border: 3px solid #2d8659;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            animation: fadeInUp 0.8s ease-out backwards;
+        }
+
+        .stage:nth-child(1) .stage-card { animation-delay: 0.1s; }
+        .stage:nth-child(2) .stage-card { animation-delay: 0.2s; }
+        .stage:nth-child(3) .stage-card { animation-delay: 0.3s; }
+        .stage:nth-child(4) .stage-card { animation-delay: 0.4s; }
+        .stage:nth-child(5) .stage-card { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stage-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 12px 30px rgba(45, 134, 89, 0.3);
+            border-color: #1e8449;
+        }
+
+        .stage-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #2d8659;
+            color: white;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.3s ease;
+        }
+
+        .stage-card:hover .stage-number {
+            background: #1e5a3f;
+            transform: scale(1.15);
+        }
+
+        .stage-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a5f;
+            margin-bottom: 12px;
+        }
+
+        .stage-subtitle {
+            font-size: 14px;
+            color: #2d8659;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .stage-description {
+            font-size: 15px;
+            color: #4a5f7f;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        /* Close Button */
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .close-btn:focus {
+            outline: 2px solid #2d8659;
+            outline-offset: 2px;
+        }
+
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 2px solid #2d8659;
+            border-radius: 30px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-toggle span {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e3a5f;
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .header h1 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .header p {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .stage-card {
+            background: #2a2a3e;
+            border-color: #3d8f63;
+        }
+
+        body.dark-mode .stage-title {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .stage-description {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .detail-panel {
+            background: #2a2a3e;
+        }
+
+        body.dark-mode .detail-panel h3 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .detail-content {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .footer {
+            background: rgba(42, 42, 62, 0.8);
+        }
+
+        body.dark-mode .footer p {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .theme-toggle {
+            background: #2a2a3e;
+            border-color: #3d8f63;
+        }
+
+        body.dark-mode .theme-toggle span {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .loading-overlay {
+            background: rgba(26, 26, 46, 0.95);
+        }
+
+        .stage-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2d8659;
+            transition: all 0.3s ease;
+        }
+
+        .stage-card:hover .stage-icon {
+            transform: scale(1.2) rotate(5deg);
+            color: #1e8449;
+        }
+
+        /* Arrow indicators */
+        .arrow {
+            position: absolute;
+            top: 110px;
+            font-size: 24px;
+            color: #2d8659;
+            z-index: 3;
+            animation: bounce 2s infinite;
+        }
+
+        .stage:nth-child(1) .arrow { left: 92%; animation-delay: 0.2s; }
+        .stage:nth-child(2) .arrow { left: 92%; animation-delay: 0.4s; }
+        .stage:nth-child(3) .arrow { left: 92%; animation-delay: 0.6s; }
+        .stage:nth-child(4) .arrow { left: 92%; animation-delay: 0.8s; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(8px); }
+        }
+
+        /* Detail panel */
+        .detail-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            margin-top: 60px;
+            animation: slideUp 0.8s ease-out;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .detail-panel.active {
+            max-height: 500px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-panel h3 {
+            color: #1e3a5f;
+            font-size: 28px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .detail-panel h3 i {
+            color: #2d8659;
+            font-size: 32px;
+        }
+
+        .detail-content {
+            color: #4a5f7f;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .detail-content ul {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .detail-content li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .detail-content li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #2d8659;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .flow-container {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .flow-container::before {
+                display: none;
+            }
+
+            .stage {
+                width: 100%;
+            }
+
+            .arrow {
+                display: none;
+            }
+
+            .header h1 {
+                font-size: 36px;
+            }
+
+            .header p {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .header p {
+                font-size: 14px;
+            }
+
+            .stage-card {
+                padding: 20px;
+                min-height: auto;
+            }
+
+            .stage-title {
+                font-size: 18px;
+            }
+
+            .stage-icon {
+                font-size: 36px;
+                height: 45px;
+            }
+
+            .detail-panel {
+                padding: 25px;
+            }
+
+            .detail-panel h3 {
+                font-size: 22px;
+            }
+        }
+
+        /* Animation keyframes */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stage-card.active {
+            border-color: #1e8449;
+            background: linear-gradient(135deg, #f0f8f5 0%, #ffffff 100%);
+        }
+
+        .stage-card.active .stage-number {
+            background: #1e8449;
+            box-shadow: 0 0 20px rgba(30, 132, 73, 0.4);
+        }
+
+        /* Info badge */
+        .info-badge {
+            display: inline-block;
+            background: #2d8659;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .stage-card:hover .info-badge {
+            background: #1e5a3f;
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 80px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            animation: fadeInUp 1s ease-out 1s backwards;
+        }
+
+        .footer p {
+            color: #4a5f7f;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .footer .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #2d8659;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .footer .logo i {
+            font-size: 24px;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 20px;
+            }
+
+            .theme-toggle {
+                display: none;
+            }
+
+            .loading-overlay {
+                display: none;
+            }
+
+            .flow-container::before {
+                background: #000;
+            }
+
+            .stage-card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 2px solid #000;
+                page-break-inside: avoid;
+            }
+
+            .detail-panel {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ccc;
+                margin-top: 20px;
+                max-height: none !important;
+            }
+
+            .detail-panel.active {
+                display: block !important;
+            }
+
+            .close-btn {
+                display: none;
+            }
+
+            .info-badge {
+                display: none;
+            }
+
+            .arrow {
+                color: #000;
+            }
+
+            @page {
+                margin: 2cm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading" role="status" aria-label="Carregando conteúdo">
+        <div class="spinner" aria-hidden="true"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+        <i class="fas fa-moon" id="themeIcon"></i>
+        <span id="themeText">Modo Escuro</span>
+    </button>
+
+    <div class="container">
+        <header class="header" role="banner">
+            <h1>🌱 Fluxo da Auditoria Operacional: EMATER-RO</h1>
+            <p>Demonstrar o processo técnico e lógico da auditoria, evidenciando como a coleta de dados no campo se transforma em recomendações estratégicas para a agricultura familiar.</p>
+        </div>
+
+        <main class="flow-container" role="main">
+            <!-- Stage 1 -->
+            <article class="stage" onclick="showDetail(0)" role="button" tabindex="0" aria-label="Etapa 1: O Ponto de Partida - Clique para mais detalhes" onkeypress="handleKeyPress(event, 0)">
+                <div class="stage-card">
+                    <div class="stage-number">1</div>
+                    <div class="stage-icon">🌿</div>
+                    <div class="stage-title">O Ponto de Partida</div>
+                    <div class="stage-subtitle">Objetivo: Fortalecer a Agricultura Familiar</div>
+                    <div class="stage-description">Avaliar se os serviços da Emater-RO geram resultados concretos em renda, produtividade e acesso a mercados para o produtor.</div>
+                    <div class="info-badge">Clique para detalhes</div>
+                </div>
+                <div class="arrow">→</div>
+            </article>
+
+            <!-- Stage 2 -->
+            <article class="stage" onclick="showDetail(1)" role="button" tabindex="0" aria-label="Etapa 2: As Lentes da Avaliação - Clique para mais detalhes" onkeypress="handleKeyPress(event, 1)">
+                <div class="stage-card">
+                    <div class="stage-number">2</div>
+                    <div class="stage-icon">🔍</div>
+                    <div class="stage-title">As Lentes da Avaliação</div>
+                    <div class="stage-subtitle">Os Cinco Eixos de Análise</div>
+                    <div class="stage-description">A análise foca em: Efetividade, Alcance, Articulação Institucional, Inteligência de Mercado e Monitoramento.</div>
+                    <div class="info-badge">Clique para detalhes</div>
+                </div>
+                <div class="arrow">→</div>
+            </article>
+
+            <!-- Stage 3 -->
+            <article class="stage" onclick="showDetail(2)" role="button" tabindex="0" aria-label="Etapa 3: Coleta e Público-Alvo - Clique para mais detalhes" onkeypress="handleKeyPress(event, 2)">
+                <div class="stage-card">
+                    <div class="stage-number">3</div>
+                    <div class="stage-icon">📋</div>
+                    <div class="stage-title">Coleta e Público-Alvo</div>
+                    <div class="stage-subtitle">Vozes do Campo e da Gestão</div>
+                    <div class="stage-description">Aplicação de formulários e entrevistas com extensionistas, gerentes locais e agricultores (atendidos ou não) via instrumentos digitais.</div>
+                    <div class="info-badge">Clique para detalhes</div>
+                </div>
+                <div class="arrow">→</div>
+            </article>
+
+            <!-- Stage 4 -->
+            <article class="stage" onclick="showDetail(3)" role="button" tabindex="0" aria-label="Etapa 4: Inteligência de Dados - Clique para mais detalhes" onkeypress="handleKeyPress(event, 3)">
+                <div class="stage-card">
+                    <div class="stage-number">4</div>
+                    <div class="stage-icon">💾</div>
+                    <div class="stage-title">Inteligência de Dados</div>
+                    <div class="stage-subtitle">Da Coleta à Geração de Achados</div>
+                    <div class="stage-description">Os dados de campo são consolidados em base digital, tratados e transformados em evidências técnicas (achados de auditoria).</div>
+                    <div class="info-badge">Clique para detalhes</div>
+                </div>
+                <div class="arrow">→</div>
+            </article>
+
+            <!-- Stage 5 -->
+            <article class="stage" onclick="showDetail(4)" role="button" tabindex="0" aria-label="Etapa 5: Resultado Final - Clique para mais detalhes" onkeypress="handleKeyPress(event, 4)">
+                <div class="stage-card">
+                    <div class="stage-number">5</div>
+                    <div class="stage-icon">📊</div>
+                    <div class="stage-title">Resultado Final</div>
+                    <div class="stage-subtitle">Relatório Orientado à Melhoria</div>
+                    <div class="stage-description">Documento final com diagnóstico e recomendações para o fortalecimento institucional e das políticas de desenvolvimento rural.</div>
+                    <div class="info-badge">Clique para detalhes</div>
+                </div>
+            </article>
+        </main>
+
+        <!-- Detail Panels -->
+        <section id="detail-0" class="detail-panel" role="region" aria-labelledby="detail-0-title" aria-hidden="true">
+            <button class="close-btn" onclick="showDetail(0)" aria-label="Fechar detalhes">×</button>
+            <h3 id="detail-0-title"><i class="fas fa-leaf" aria-hidden="true"></i> O Ponto de Partida</h3>
+            <div class="detail-content">
+                <p>Esta etapa estabelece o fundamento da auditoria operacional, focando em avaliar o impacto real dos serviços de assistência técnica e extensão rural (Ater) oferecidos pela Emater-RO.</p>
+                <ul>
+                    <li><strong>Objetivo Central:</strong> Fortalecer a agricultura familiar através de políticas públicas efetivas</li>
+                    <li><strong>Foco Avaliativo:</strong> Resultados concretos em renda, produtividade e acesso a mercados</li>
+                    <li><strong>Escopo:</strong> Análise da execução da política de Ater no estado de Rondônia</li>
+                    <li><strong>Beneficiários:</strong> Produtores rurais familiares e a sociedade como um todo</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="detail-1" class="detail-panel" role="region" aria-labelledby="detail-1-title" aria-hidden="true">
+            <button class="close-btn" onclick="showDetail(1)" aria-label="Fechar detalhes">×</button>
+            <h3 id="detail-1-title"><i class="fas fa-compass" aria-hidden="true"></i> As Lentes da Avaliação</h3>
+            <div class="detail-content">
+                <p>A auditoria operacional utiliza cinco dimensões analíticas para avaliar a política de Ater de forma holística e estruturada:</p>
+                <ul>
+                    <li><strong>Efetividade:</strong> Os serviços atingem seus objetivos propostos?</li>
+                    <li><strong>Alcance:</strong> Quantos produtores são atendidos? Qual é a cobertura geográfica?</li>
+                    <li><strong>Articulação Institucional:</strong> Como a Emater-RO se relaciona com outras instituições?</li>
+                    <li><strong>Inteligência de Mercado:</strong> Os produtores recebem informações sobre oportunidades de mercado?</li>
+                    <li><strong>Monitoramento:</strong> Existe acompanhamento sistemático dos resultados?</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="detail-2" class="detail-panel" role="region" aria-labelledby="detail-2-title" aria-hidden="true">
+            <button class="close-btn" onclick="showDetail(2)" aria-label="Fechar detalhes">×</button>
+            <h3 id="detail-2-title"><i class="fas fa-users" aria-hidden="true"></i> Coleta e Público-Alvo</h3>
+            <div class="detail-content">
+                <p>Nesta fase, os auditores coletam dados diretamente no campo através de entrevistas estruturadas e formulários digitais aplicados a múltiplos públicos:</p>
+                <ul>
+                    <li><strong>Extensionistas:</strong> Profissionais que executam os serviços de Ater</li>
+                    <li><strong>Gerentes Locais:</strong> Responsáveis pela gestão das unidades da Emater-RO</li>
+                    <li><strong>Agricultores Atendidos:</strong> Produtores que recebem os serviços</li>
+                    <li><strong>Agricultores Não Atendidos:</strong> Produtores que não recebem os serviços (controle)</li>
+                    <li><strong>Instrumentos Digitais:</strong> Tablets e aplicativos para registro em tempo real</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="detail-3" class="detail-panel" role="region" aria-labelledby="detail-3-title" aria-hidden="true">
+            <button class="close-btn" onclick="showDetail(3)" aria-label="Fechar detalhes">×</button>
+            <h3 id="detail-3-title"><i class="fas fa-database" aria-hidden="true"></i> Inteligência de Dados</h3>
+            <div class="detail-content">
+                <p>Os dados brutos coletados no campo são processados e transformados em informações estratégicas através de análise técnica rigorosa:</p>
+                <ul>
+                    <li><strong>Consolidação:</strong> Todos os dados são integrados em uma base digital centralizada</li>
+                    <li><strong>Tratamento:</strong> Limpeza, validação e padronização dos dados</li>
+                    <li><strong>Análise:</strong> Aplicação de técnicas estatísticas e qualitativas</li>
+                    <li><strong>Geração de Achados:</strong> Identificação de padrões, tendências e evidências técnicas</li>
+                    <li><strong>Conclusões:</strong> Síntese das descobertas para o relatório final</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="detail-4" class="detail-panel" role="region" aria-labelledby="detail-4-title" aria-hidden="true">
+            <button class="close-btn" onclick="showDetail(4)" aria-label="Fechar detalhes">×</button>
+            <h3 id="detail-4-title"><i class="fas fa-file-chart-line" aria-hidden="true"></i> Resultado Final</h3>
+            <div class="detail-content">
+                <p>O relatório final consolida todas as descobertas e apresenta recomendações estratégicas baseadas em evidências técnicas sólidas:</p>
+                <ul>
+                    <li><strong>Diagnóstico Abrangente:</strong> Análise completa da execução da política de Ater</li>
+                    <li><strong>Recomendações Específicas:</strong> Sugestões práticas para melhorias institucionais</li>
+                    <li><strong>Foco na Melhoria:</strong> Orientação para o fortalecimento da agricultura familiar</li>
+                    <li><strong>Impacto Potencial:</strong> Contribuição para políticas públicas mais efetivas</li>
+                    <li><strong>Transparência:</strong> Documento público que contribui para a accountability</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer class="footer" role="contentinfo">
+            <p>Auditoria Operacional realizada pelo Tribunal de Contas do Estado de Rondônia (TCE-RO)</p>
+            <div class="logo">
+                <i class="fas fa-leaf"></i>
+                <span>EMATER-RO | Desenvolvimento Rural Sustentável</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let currentDetail = null;
+
+        // Loading state
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 500);
+        });
+
+        // Dark mode toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeIcon.className = 'fas fa-sun';
+            themeText.textContent = 'Modo Claro';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            if (isDark) {
+                themeIcon.className = 'fas fa-sun';
+                themeText.textContent = 'Modo Claro';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.className = 'fas fa-moon';
+                themeText.textContent = 'Modo Escuro';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Keyboard navigation
+        function handleKeyPress(event, index) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                showDetail(index);
+            }
+        }
+
+        function showDetail(index) {
+            // Close current detail if open
+            if (currentDetail !== null && currentDetail !== index) {
+                const currentPanel = document.getElementById(`detail-${currentDetail}`);
+                currentPanel.classList.remove('active');
+                currentPanel.setAttribute('aria-hidden', 'true');
+                const currentCard = document.querySelectorAll('.stage-card')[currentDetail];
+                currentCard.classList.remove('active');
+            }
+
+            // Open new detail
+            const detailPanel = document.getElementById(`detail-${index}`);
+            const stageCard = document.querySelectorAll('.stage-card')[index];
+
+            if (currentDetail === index) {
+                // Toggle off if clicking the same stage
+                detailPanel.classList.remove('active');
+                detailPanel.setAttribute('aria-hidden', 'true');
+                stageCard.classList.remove('active');
+                currentDetail = null;
+            } else {
+                // Open new detail
+                detailPanel.classList.add('active');
+                detailPanel.setAttribute('aria-hidden', 'false');
+                stageCard.classList.add('active');
+                currentDetail = index;
+                
+                // Smooth scroll to detail panel
+                setTimeout(() => {
+                    detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        }
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && currentDetail !== null) {
+                showDetail(currentDetail);
+            }
+        });
+    </script>
+</body>
+</html>
