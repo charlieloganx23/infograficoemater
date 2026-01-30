@@ -19,6 +19,9 @@
     <meta property="twitter:description" content="Processo técnico da auditoria que transforma coleta de dados em recomendações estratégicas para agricultura familiar.">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- VLibras Widget -->
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
     <style>
         * {
             margin: 0;
@@ -1003,6 +1006,14 @@
         </footer>
     </div>
 
+    <!-- VLibras Widget -->
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+
     <!-- AuditIA - Assistente Inteligente -->
     <div class="auditia-container" id="auditiaContainer">
         <div class="auditia-help-menu" id="auditiaHelp">
@@ -1018,7 +1029,7 @@
             </ul>
         </div>
         <div class="auditia-balloon" id="auditiaBalloon">
-            <p id="auditiaText">Olá! Sou a AuditIA, sua assistente virtual. Clique em mim para ativar minha voz ou escolha uma opção de ajuda!</p>
+            <p id="auditiaText">Olá! Sou a AuditIA, sua assistente virtual. Para tradução em LIBRAS, use o botão à esquerda. Ative minha voz ou escolha uma opção de ajuda!</p>
             <div class="auditia-controls">
                 <button class="auditia-btn" id="voiceToggle" onclick="toggleVoice()">
                     <i class="fas fa-volume-up"></i>
@@ -1134,15 +1145,34 @@
         
         // Mensagens da AuditIA
         const auditiaMessages = {
-            apresentacao: "Olá! Eu sou a AuditIA, sua assistente virtual inteligente. Fui criada para ajudá-lo a compreender o fluxo da auditoria operacional da EMATER-RO. Posso explicar cada etapa, responder dúvidas e orientá-lo na navegação. Como posso ajudar?",
+            apresentacao: "Olá! Eu sou a AuditIA, sua assistente virtual inteligente. Fui criada para ajudá-lo a compreender o fluxo da auditoria operacional da EMATER-RO. Posso explicar cada etapa, responder dúvidas e orientá-lo na navegação. Para tradução em LIBRAS, use o botão azul à esquerda. Como posso ajudar?",
             etapa1: "A Etapa 1, O Ponto de Partida, tem como objetivo fortalecer a agricultura familiar. Avaliamos se os serviços da Emater-RO são efetivos, alcançam o público-alvo, estão bem articulados, contribuem para a inserção produtiva e são monitorados de forma sistemática.",
             etapa2: "A Etapa 2, As Lentes da Avaliação, apresenta os cinco eixos de análise: Efetividade, Alcance, Articulação, Inteligência de Mercado e Monitoramento e Avaliação. Cada eixo avalia um aspecto crucial da política de assistência técnica.",
             etapa3: "A Etapa 3, Coleta e Público-Alvo, envolve a coleta de dados no campo. Entrevistamos extensionistas, gerentes locais, agricultores atendidos e não atendidos, utilizando instrumentos digitais para registrar as informações em tempo real.",
             etapa4: "A Etapa 4, Inteligência de Dados, transforma os dados coletados em evidências. O fluxo é: Dados coletados, depois Dados tratados, que geram Evidências, formando os Achados, que resultam em Recomendações.",
             etapa5: "A Etapa 5, Resultado Final, apresenta o relatório com recomendações a partir dos cinco eixos da auditoria, com foco no aperfeiçoamento da política pública de Ater e no fortalecimento da agricultura familiar.",
-            navegacao: "Para navegar pelo infográfico: clique nos cards coloridos para ver os detalhes de cada etapa. Use as setas do teclado para navegar. Pressione ESC para fechar os painéis. Você também pode ativar o modo escuro no canto superior direito.",
-            boas_vindas: "Bem-vindo ao Infográfico da Auditoria Operacional da EMATER-RO! Clique nas etapas para explorar o processo completo, desde a coleta de dados até as recomendações finais."
+            navegacao: "Para navegar pelo infográfico: clique nos cards coloridos para ver os detalhes de cada etapa. Use as setas do teclado para navegar. Pressione ESC para fechar os painéis. Você também pode ativar o modo escuro no canto superior direito. Para tradução em LIBRAS, use o VLibras à esquerda.",
+            boas_vindas: "Bem-vindo ao Infográfico da Auditoria Operacional da EMATER-RO! Clique nas etapas para explorar o processo completo. Use o VLibras para tradução em LIBRAS ou ative minha voz para áudio."
         };
+
+        // Configurar síntese de voz otimizada
+        let selectedVoice = null;
+        
+        // Esperar vozes carregarem
+        function setupVoices() {
+            const voices = speechSynthesis.getVoices();
+            // Tentar encontrar a melhor voz pt-BR
+            selectedVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Microsoft'))) 
+                          || voices.find(v => v.lang === 'pt-BR')
+                          || voices.find(v => v.lang.startsWith('pt'))
+                          || voices[0];
+        }
+
+        // Carregar vozes quando disponíveis
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = setupVoices;
+        }
+        setupVoices();
 
         // Falar texto
         function speak(text) {
@@ -1153,9 +1183,16 @@
                 speechSynthesis.cancel();
                 
                 const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Usar a melhor voz selecionada
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                }
+                
                 utterance.lang = 'pt-BR';
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
+                utterance.rate = 0.85; // Velocidade mais natural
+                utterance.pitch = 1.05; // Tom ligeiramente mais alto (mais profissional)
+                utterance.volume = 1;
                 
                 utterance.onstart = () => {
                     isSpeaking = true;
@@ -1259,6 +1296,11 @@
                     helpMenu.classList.remove('active');
                 }
             }
+        });
+
+        // Inicializar VLibras
+        window.addEventListener('load', function() {
+            new window.VLibras.Widget('https://vlibras.gov.br/app');
         });
     </script>
 </body>
